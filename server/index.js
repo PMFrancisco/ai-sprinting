@@ -14,8 +14,8 @@ const io  = new Server(server,{
 app.use(cors())
 app.use(express.json())
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
+app.get('/api', (req, res) => {
+  res.send('Estamos conectados')
 })
 
 io.on("connection", (socket) => {

@@ -1,4 +1,4 @@
-run = "npm run"
+run = "npm start"
 modules = ["nodejs-20"]
 [nix]
 channel = "stable-24_05"
@@ -7,5 +7,6 @@ channel = "stable-24_05"
 run = ["sh", "-c", "npm run"]
 
 [[ports]]
-localPort = 3000
+localPort = 5173
 externalPort = 80
+exposeLocalhost = true
