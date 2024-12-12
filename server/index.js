@@ -19,10 +19,15 @@ app.get('/api', (req, res) => {
 })
 
 io.on("connection", (socket) => {
-  console.log(`usuario conectado: ${socket.id}`)
-})
+  console.log(`Usuario conectado: ${socket.id}`);
 
-const PORT = 3000
+  socket.on("disconnect", () => {
+    console.log(`Usuario desconectado: ${socket.id}`);
+  });
+});
+
+
+const PORT = 3001
 server.listen(PORT, () => {
   console.log(`Servidor iniciado en puerto ${PORT}`)
 })
