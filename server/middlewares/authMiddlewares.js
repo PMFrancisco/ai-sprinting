@@ -1,10 +1,11 @@
 const jwt = require("jsonwebtoken");
+const messages = require("../utils/responseMessages");
 
 const authenticate = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: messages.UNAUTHORIZED });
   }
 
   const token = authHeader.split(" ")[1];
@@ -14,7 +15,7 @@ const authenticate = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(403).json({ message: "Invalid token" });
+    return res.status(403).json({ message: messages.INVALID_TOKEN });
   }
 };
 

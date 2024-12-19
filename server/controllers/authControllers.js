@@ -1,6 +1,8 @@
 const User = require("../models/user");
-const bCrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const { generateTokens, saveUserWithToken } = require("../utils/tokenUtils");
+const messages = require("../utils/responseMessages");
 
 const register = async (req, res) => {
   let { email, password } = req.body;
@@ -11,19 +13,18 @@ const register = async (req, res) => {
   email = email.toLowerCase();
 
   if (!emailRegex.test(email)) {
-    return res.status(400).json({ message: "Invalid email format" });
+    return res.status(400).json({ message: messages.INVALID_EMAIL });
   }
 
   if (!passwordRegex.test(password)) {
     return res.status(400).json({
-      message:
-        "Password must be at least 8 characters long and include at least one number and one special character",
+      message: messages.INVALID_PASSWORD,
     });
   }
 
   try {
-    const salt = await bCrypt.genSalt(10);
-    const hashedPassword = await bCrypt.hash(password, salt);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
       email,
@@ -48,11 +49,12 @@ const login = async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user)
+      return res.status(404).json({ message: messages.USER_NOT_FOUND });
 
-    const isMatch = await bCrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: messages.INVALID_CREDENTIALS });
 
     const { accessToken, refreshToken } = generateTokens(user._id);
     await saveUserWithToken(user, refreshToken);
@@ -69,12 +71,12 @@ const refreshToken = async (req, res) => {
   const { refreshToken } = req.body;
 
   if (!refreshToken)
-    return res.status(401).json({ message: "Refresh token required" });
+    return res.status(401).json({ message: messages.REFRESH_TOKEN_REQUIRED });
 
   try {
     const user = await User.findOne({ refreshToken });
     if (!user) {
-      return res.status(403).json({ message: "User not found" });
+      return res.status(403).json({ message: messages.USER_NOT_FOUND });
     }
 
     jwt.verify(
@@ -104,7 +106,7 @@ const refreshToken = async (req, res) => {
 const logout = async (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken)
-    return res.status(401).json({ message: "Refresh token required" });
+    return res.status(401).json({ message: messages.REFRESH_TOKEN_REQUIRED });
 
   try {
     const user = await User.findOne({ refreshToken });
@@ -114,7 +116,7 @@ const logout = async (req, res) => {
     user.refreshToken = null;
     await user.save();
 
-    res.status(200).json({ message: "Logout successful" });
+    res.status(200).json({ message: messages.LOGOUT_SUCCESS });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
