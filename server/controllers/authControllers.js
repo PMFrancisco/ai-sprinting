@@ -28,7 +28,7 @@ const register = async (req, res) => {
 
   if (!name || typeof name !== 'string' || name.trim() === '') {
     return res.status(400).json({
-      message: "Invalid name",
+      message: messages.INVALID_NAME,
     });
   }
 
@@ -50,7 +50,7 @@ const register = async (req, res) => {
     await saveUserWithToken(newUser, refreshToken);
 
     res.status(201).json({
-      message: "User registered successfully",
+      message: messages.USER_REGISTERED_SUCCESS,
       accessToken,
       refreshToken,
     });
@@ -78,7 +78,7 @@ const login = async (req, res) => {
     await saveUserWithToken(user, refreshToken);
 
     res.status(200).json({
-      message: "User logged in successfully",
+      message: messages.USER_LOGGED_IN_SUCCESS,
       accessToken,
       refreshToken,
     });
@@ -105,7 +105,7 @@ const refreshToken = async (req, res) => {
       process.env.JWT_REFRESH_SECRET,
       async (err, decoded) => {
         if (err) {
-          return res.status(403).json({ message: "Invalid refresh token" });
+          return res.status(403).json({ message: messages.INVALID_REFRESH_TOKEN });
         }
 
         const { accessToken, refreshToken: newRefreshToken } = generateTokens(
@@ -133,7 +133,7 @@ const logout = async (req, res) => {
   try {
     const user = await prisma.user.findFirst({ where: { refreshToken } });
     if (!user) {
-      return res.status(403).json({ message: "Invalid refresh token" });
+      return res.status(403).json({ message: messages.INVALID_REFRESH_TOKEN });
     }
 
     await prisma.user.update({
@@ -141,7 +141,7 @@ const logout = async (req, res) => {
       data: { refreshToken: null },
     });
 
-    res.status(200).json({ message: "User logged out successfully" });
+    res.status(200).json({ message: messages.USER_LOGGED_OUT_SUCCESS });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
