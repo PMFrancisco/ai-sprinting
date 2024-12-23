@@ -1,7 +1,6 @@
 module.exports = {
   INVALID_EMAIL: "Invalid email format",
-  INVALID_PASSWORD:
-    "Password must be at least 8 characters long and include at least one number and one special character",
+  INVALID_PASSWORD: "Password must be at least 8 characters long and include at least one number and one special character",
   USER_NOT_FOUND: "User not found",
   INVALID_CREDENTIALS: "Invalid credentials",
   REFRESH_TOKEN_REQUIRED: "Refresh token required",
@@ -14,4 +13,9 @@ module.exports = {
   INVALID_REFRESH_TOKEN: "Invalid refresh token",
   USER_LOGGED_OUT_SUCCESS: "User logged out successfully",
   PROJECT_NOT_FOUND: "Project not found",
+  SPRINT_NOT_FOUND: "Sprint not found",
+  SPRINT_CREATED_SUCCESS: "Sprint created successfully",
+  SPRINT_UPDATED_SUCCESS: "Sprint updated successfully",
+  SPRINT_DELETED_SUCCESS: "Sprint deleted successfully",
+  INVALID_SPRINT_DATA: "Invalid sprint data",
 };
