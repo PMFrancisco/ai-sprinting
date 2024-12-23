@@ -11,7 +11,8 @@
     "prisma:studio": "prisma studio",
     "prisma:db:push": "npx prisma db push",
     "prisma:db:pull": "npx prisma db pull",
-    "prisma:db:seed": "npx prisma db seed"
+    "prisma:db:seed": "npx prisma db seed",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
