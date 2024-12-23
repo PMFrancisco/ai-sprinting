@@ -1,8 +1,10 @@
-const User = require("../models/user");
+const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { generateTokens, saveUserWithToken } = require("../utils/tokenUtils");
 const messages = require("../utils/responseMessages");
+
+const prisma = new PrismaClient();
 
 const register = async (req, res) => {
   let { email, password } = req.body;
@@ -26,12 +28,14 @@ const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUser = new User({
-      email,
-      password: hashedPassword,
+    const newUser = await prisma.usuario.create({
+      data: {
+        email,
+        password: hashedPassword,
+      },
     });
 
-    const { accessToken, refreshToken } = generateTokens(newUser._id);
+    const { accessToken, refreshToken } = generateTokens(newUser.id);
     await saveUserWithToken(newUser, refreshToken);
 
     res.status(201).json({
@@ -48,20 +52,24 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
-    if (!user)
+    const user = await prisma.usuario.findUnique({ where: { email } });
+    if (!user) {
       return res.status(404).json({ message: messages.USER_NOT_FOUND });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
+    if (!isMatch) {
       return res.status(400).json({ message: messages.INVALID_CREDENTIALS });
+    }
 
-    const { accessToken, refreshToken } = generateTokens(user._id);
+    const { accessToken, refreshToken } = generateTokens(user.id);
     await saveUserWithToken(user, refreshToken);
 
-    res
-      .status(200)
-      .json({ message: "Login successful", accessToken, refreshToken });
+    res.status(200).json({
+      message: "Login successful",
+      accessToken,
+      refreshToken,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -70,11 +78,12 @@ const login = async (req, res) => {
 const refreshToken = async (req, res) => {
   const { refreshToken } = req.body;
 
-  if (!refreshToken)
+  if (!refreshToken) {
     return res.status(401).json({ message: messages.REFRESH_TOKEN_REQUIRED });
+  }
 
   try {
-    const user = await User.findOne({ refreshToken });
+    const user = await prisma.usuario.findFirst({ where: { refreshToken } });
     if (!user) {
       return res.status(403).json({ message: messages.USER_NOT_FOUND });
     }
@@ -105,16 +114,20 @@ const refreshToken = async (req, res) => {
 
 const logout = async (req, res) => {
   const { refreshToken } = req.body;
-  if (!refreshToken)
+  if (!refreshToken) {
     return res.status(401).json({ message: messages.REFRESH_TOKEN_REQUIRED });
+  }
 
   try {
-    const user = await User.findOne({ refreshToken });
-    if (!user)
+    const user = await prisma.usuario.findFirst({ where: { refreshToken } });
+    if (!user) {
       return res.status(403).json({ message: "Invalid refresh token" });
+    }
 
-    user.refreshToken = null;
-    await user.save();
+    await prisma.usuario.update({
+      where: { id: user.id },
+      data: { refreshToken: null },
+    });
 
     res.status(200).json({ message: messages.LOGOUT_SUCCESS });
   } catch (error) {
