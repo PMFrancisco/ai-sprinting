@@ -7,7 +7,9 @@ const messages = require("../utils/responseMessages");
 const prisma = new PrismaClient();
 
 const register = async (req, res) => {
-  let { email, password } = req.body;
+  let { email, password, name } = req.body;
+
+  console.log("Received data:", { email, password, name });
 
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,}$/;
@@ -24,16 +26,25 @@ const register = async (req, res) => {
     });
   }
 
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    return res.status(400).json({
+      message: "Invalid name",
+    });
+  }
+
   try {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUser = await prisma.usuario.create({
+    const newUser = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
+        name: name.trim()
       },
     });
+
+    console.log("New user created:", newUser);
 
     const { accessToken, refreshToken } = generateTokens(newUser.id);
     await saveUserWithToken(newUser, refreshToken);
@@ -44,6 +55,7 @@ const register = async (req, res) => {
       refreshToken,
     });
   } catch (error) {
+    console.error("Error creating user:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -52,7 +64,7 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await prisma.usuario.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       return res.status(404).json({ message: messages.USER_NOT_FOUND });
     }
@@ -66,7 +78,7 @@ const login = async (req, res) => {
     await saveUserWithToken(user, refreshToken);
 
     res.status(200).json({
-      message: "Login successful",
+      message: "User logged in successfully",
       accessToken,
       refreshToken,
     });
@@ -83,7 +95,7 @@ const refreshToken = async (req, res) => {
   }
 
   try {
-    const user = await prisma.usuario.findFirst({ where: { refreshToken } });
+    const user = await prisma.user.findFirst({ where: { refreshToken } });
     if (!user) {
       return res.status(403).json({ message: messages.USER_NOT_FOUND });
     }
@@ -119,25 +131,20 @@ const logout = async (req, res) => {
   }
 
   try {
-    const user = await prisma.usuario.findFirst({ where: { refreshToken } });
+    const user = await prisma.user.findFirst({ where: { refreshToken } });
     if (!user) {
       return res.status(403).json({ message: "Invalid refresh token" });
     }
 
-    await prisma.usuario.update({
+    await prisma.user.update({
       where: { id: user.id },
       data: { refreshToken: null },
     });
 
-    res.status(200).json({ message: messages.LOGOUT_SUCCESS });
+    res.status(200).json({ message: "User logged out successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-module.exports = {
-  register,
-  login,
-  refreshToken,
-  logout,
-};
+module.exports = { register, login, refreshToken, logout };

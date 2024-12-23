@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken");
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
 const generateTokens = (userId) => {
   const accessToken = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -13,8 +15,10 @@ const generateTokens = (userId) => {
 };
 
 const saveUserWithToken = async (user, refreshToken) => {
-  user.refreshToken = refreshToken;
-  await user.save();
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { refreshToken },
+  });
 };
 
 module.exports = {

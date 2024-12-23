@@ -4,55 +4,56 @@ datasource db {
 }
 
 generator client {
-  provider        = "prisma-client-js"
-  binaryTargets   = ["native", "rhel-openssl-1.0.x", "rhel-openssl-1.1.x"]
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-1.1.x"]
 }
 
-model Usuario {
-  id        Int       @id @default(autoincrement())
-  nombre    String
-  email     String    @unique
-  password  String
-  rol       String    @default("usuario")
-  proyectos Proyecto[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+model User {
+  id           Int       @id @default(autoincrement())
+  name         String
+  email        String    @unique
+  password     String
+  role         String    @default("user")
+  refreshToken String?
+  projects     Project[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
-model Proyecto {
-  id          Int       @id @default(autoincrement())
-  titulo      String
-  descripcion String?
-  usuarioId   Int
-  usuario     Usuario   @relation(fields: [usuarioId], references: [id])
+model Project {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
   sprints     Sprint[]
-  tareas      Tarea[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  tasks       Task[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Sprint {
-  id          Int       @id @default(autoincrement())
-  nombre      String
-  descripcion String?
-  proyectoId  Int
-  proyecto    Proyecto   @relation(fields: [proyectoId], references: [id])
-  tareas      Tarea[]
-  inicio      DateTime
-  fin         DateTime
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  projectId   Int
+  project     Project  @relation(fields: [projectId], references: [id])
+  tasks       Task[]
+  start       DateTime
+  end         DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
-model Tarea {
-  id          Int       @id @default(autoincrement())
-  titulo      String
-  descripcion String?
-  estado      String    @default("pendiente")
+model Task {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  status      String   @default("pending")
   sprintId    Int?
-  sprint      Sprint?   @relation(fields: [sprintId], references: [id])
-  proyectoId  Int
-  proyecto    Proyecto  @relation(fields: [proyectoId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  sprint      Sprint?  @relation(fields: [sprintId], references: [id])
+  projectId   Int
+  project     Project  @relation(fields: [projectId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
