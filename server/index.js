@@ -3,6 +3,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const { PrismaClient } = require("@prisma/client");
+require("dotenv").config();
 
 const prisma = new PrismaClient();
 
