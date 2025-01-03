@@ -1,4 +1,4 @@
-  const OpenAI = require("openai");
+const OpenAI = require("openai");
   require("dotenv").config();
   
   const openai = new OpenAI({
@@ -146,7 +146,11 @@
   }
   
   async function createSprints(projectDetails) {
-    if (!projectDetails.sprintGoals || projectDetails.sprintGoals.length === 0) {
+    if (!projectDetails.sprintGoals || !Array.isArray(projectDetails.sprintGoals)) {
+      projectDetails.sprintGoals = [];
+    }
+  
+    if (projectDetails.sprintGoals.length === 0) {
       projectDetails.sprintGoals = await generateSprintGoals(projectDetails);
     }
   
@@ -159,7 +163,7 @@
       - Project type: ${projectDetails.type}
       - Sprint duration: ${projectDetails.sprintDuration}
       - Project complexity: ${projectDetails.complexity}
-      - Sprint goals: ${projectDetails.sprintGoals.join(", ")}
+      - Sprint goals: ${projectDetails.sprintGoals}
       
       The responses should be in JSON format with the following structure:
       {
