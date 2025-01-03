@@ -19,8 +19,14 @@ function RequestSprint() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const data = await fetchData('/openai/create-sprints', 'POST', { project, description, type, sprintDuration, complexity });
-      navigate('/sprint-results', { state: { sprints: data } });
+      const data = await fetchData('/openai/create-sprints', 'POST', { 
+        name: project, 
+        description, 
+        type, 
+        sprintDuration, 
+        complexity 
+      });
+      navigate('/sprint-results', { state: { sprints: data.sprints } });
     } catch (error) {
       console.error('Sprint request failed:', error);
     } finally {
