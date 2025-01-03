@@ -1,20 +1,20 @@
-div {
+.user-panel {
   padding: 2rem;
   width: 100%;
   max-width: 600px;
   margin: 2rem auto;
 }
 
-h2 {
+.user-panel h2 {
   color: #333;
 }
 
-ul {
+.user-panel ul {
   list-style-type: none;
   padding: 0;
 }
 
-li {
+.user-panel li {
   background-color: #f9f9f9;
   margin-bottom: 0.5rem;
   padding: 0.5rem;

@@ -1,5 +1,10 @@
 const { PrismaClient } = require("@prisma/client");
-const { createSessionContext, generateSprintGoals, createSprints: createSprintsUtil, generateProjectIdeas } = require("../utils/openaiUtils");
+const {
+  createSessionContext,
+  generateSprintGoals,
+  createSprints: createSprintsUtil,
+  generateProjectIdeas,
+} = require("../utils/openaiUtils");
 
 const prisma = new PrismaClient();
 

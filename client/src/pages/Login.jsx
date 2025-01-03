@@ -1,43 +1,66 @@
 import './Login.css';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { fetchData } from '../utils/api';
-import { setToken } from '../utils/auth';
 import Button from '../components/Button';
+import LoadingSpinner from '../components/LoadingSpinner';
+import Modal from '../components/Modal';
+import AuthContext from '../context/AuthContext';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const data = await fetchData('/auth/login', 'POST', { email, password });
-      setToken(data.accessToken);
+      login(data.accessToken);
       console.log('Login successful:', data);
+      navigate('/');
     } catch (error) {
       console.error('Login failed:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Login</h2>
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-        required
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-        required
-      />
-      <Button type="submit">Login</Button>
-    </form>
+    <>
+      {isLoading && (
+        <Modal>
+          <LoadingSpinner />
+        </Modal>
+      )}
+      <div className={isLoading ? 'blur' : ''}>
+        <form onSubmit={handleSubmit}>
+          <h2>Login</h2>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            required
+            autoComplete="email"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            required
+            autoComplete="current-password"
+          />
+          <Button type="submit" disabled={isLoading}>
+            Login
+          </Button>
+        </form>
+      </div>
+    </>
   );
 }
 

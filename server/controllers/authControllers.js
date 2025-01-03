@@ -9,8 +9,6 @@ const prisma = new PrismaClient();
 const register = async (req, res) => {
   let { email, password, name } = req.body;
 
-  console.log("Received data:", { email, password, name });
-
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,}$/;
 
@@ -44,8 +42,6 @@ const register = async (req, res) => {
       },
     });
 
-    console.log("New user created:", newUser);
-
     const { accessToken, refreshToken } = generateTokens(newUser.id);
     await saveUserWithToken(newUser, refreshToken);
 
@@ -55,7 +51,6 @@ const register = async (req, res) => {
       refreshToken,
     });
   } catch (error) {
-    console.error("Error creating user:", error);
     res.status(500).json({ message: error.message });
   }
 };

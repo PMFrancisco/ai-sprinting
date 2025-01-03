@@ -19,7 +19,7 @@ function UserPanel() {
   }, []);
 
   return (
-    <div>
+    <div className="user-panel">
       <h2>User Panel</h2>
       <ul>
         {projects.map((project) => (
