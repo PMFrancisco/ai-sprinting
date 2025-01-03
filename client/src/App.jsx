@@ -1,41 +1,26 @@
-import { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import UserPanel from "./pages/UserPanel";
+import RequestSprint from "./pages/RequestSprint";
+import './App.css';
 
 function App() {
-  useEffect(() => {
-    const socket = new WebSocket("ws://localhost:3001");
-
-    socket.onopen = () => {
-      console.log("Conectado al servidor WebSocket");
-    };
-
-    socket.onmessage = (event) => {
-      console.log(`Mensaje del servidor: ${event.data}`);
-    };
-
-    socket.onclose = (event) => {
-      console.log("Desconectado del servidor WebSocket", event);
-    };
-
-    socket.onerror = (error) => {
-      console.error("Error en la conexión WebSocket:", error);
-    };
-
-    fetch("/api")
-      .then((response) => response.text())
-      .then((data) => console.log("Respuesta del backend:", data))
-      .catch((error) =>
-        console.error("Error al conectar con el backend:", error),
-      );
-
-    return () => {
-      socket.close();
-    };
-  }, []);
-
   return (
-    <div>
-      <h1>¡Hola desde el frontend!</h1>
-    </div>
+    <Router>
+      <Navbar />
+      <main>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/user-panel" element={<UserPanel />} />
+          <Route path="/request-sprint" element={<RequestSprint />} />
+        </Routes>
+      </main>
+    </Router>
   );
 }
 
